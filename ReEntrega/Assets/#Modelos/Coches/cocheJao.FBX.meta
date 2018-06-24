@@ -1,0 +1,211 @@
+fileFormatVersion: 2
+guid: 65384da197694434d9d1a2c7c7e424df
+timeCreated: 1526089932
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: ae86 trueno
+    100002: apex logo
+    100004: apex logo 16
+    100006: Camera01
+    100008: Camera01.Target
+    100010: //RootNode
+    100012: descarga
+    100014: Direct01.Target
+    100016: farol D
+    100018: farol D.Target
+    100020: farol E
+    100022: farol E.Target
+    100024: farol men D
+    100026: farol men E
+    100028: Illustrate! Art Materials
+    100030: lanerna E
+    100032: lanterna D
+    100034: lanterna E
+    100036: Lanterna Inf D
+    100038: Lanterna Inf E
+    100040: laterna D
+    100042: Object01
+    100044: ocluded lights
+    100046: ocluso D
+    100048: ocluso E
+    100050: placa
+    100052: Plane01
+    100054: Plane02
+    100056: Plane03
+    100058: Plane04
+    100060: Plane05
+    100062: Plane06
+    100064: Sky01
+    100066: trueno
+    100068: trueno back
+    100070: wheel 01
+    100072: wheel 02
+    100074: wheel 03
+    100076: wheel 04
+    400000: ae86 trueno
+    400002: apex logo
+    400004: apex logo 16
+    400006: Camera01
+    400008: Camera01.Target
+    400010: //RootNode
+    400012: descarga
+    400014: Direct01.Target
+    400016: farol D
+    400018: farol D.Target
+    400020: farol E
+    400022: farol E.Target
+    400024: farol men D
+    400026: farol men E
+    400028: Illustrate! Art Materials
+    400030: lanerna E
+    400032: lanterna D
+    400034: lanterna E
+    400036: Lanterna Inf D
+    400038: Lanterna Inf E
+    400040: laterna D
+    400042: Object01
+    400044: ocluded lights
+    400046: ocluso D
+    400048: ocluso E
+    400050: placa
+    400052: Plane01
+    400054: Plane02
+    400056: Plane03
+    400058: Plane04
+    400060: Plane05
+    400062: Plane06
+    400064: Sky01
+    400066: trueno
+    400068: trueno back
+    400070: wheel 01
+    400072: wheel 02
+    400074: wheel 03
+    400076: wheel 04
+    2300000: ae86 trueno
+    2300002: apex logo
+    2300004: apex logo 16
+    2300006: descarga
+    2300008: Object01
+    2300010: placa
+    2300012: Plane01
+    2300014: Plane02
+    2300016: Plane03
+    2300018: Plane04
+    2300020: Plane05
+    2300022: Plane06
+    2300024: trueno
+    2300026: trueno back
+    2300028: wheel 01
+    2300030: wheel 02
+    2300032: wheel 03
+    2300034: wheel 04
+    3300000: ae86 trueno
+    3300002: apex logo
+    3300004: apex logo 16
+    3300006: descarga
+    3300008: Object01
+    3300010: placa
+    3300012: Plane01
+    3300014: Plane02
+    3300016: Plane03
+    3300018: Plane04
+    3300020: Plane05
+    3300022: Plane06
+    3300024: trueno
+    3300026: trueno back
+    3300028: wheel 01
+    3300030: wheel 02
+    3300032: wheel 03
+    3300034: wheel 04
+    4300000: Plane01
+    4300002: Plane02
+    4300004: Plane03
+    4300006: Plane04
+    4300008: ae86 trueno
+    4300010: Object01
+    4300012: placa
+    4300014: wheel 01
+    4300016: wheel 03
+    4300018: wheel 02
+    4300020: wheel 04
+    4300022: trueno
+    4300024: descarga
+    4300026: trueno back
+    4300028: apex logo
+    4300030: apex logo 16
+    4300032: Plane05
+    4300034: Plane06
+    7400000: Take 001
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,197 @@
+fileFormatVersion: 2
+guid: 7e80a809389ba0b4b9c391310a7e94b9
+timeCreated: 1526146676
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: body
+    100002: body_
+    100004: body_black
+    100006: body_chrom
+    100008: body_rubbe
+    100010: body_steel
+    100012: CINEMA_4D_Editor
+    100014: clear_glas
+    100016: //RootNode
+    100018: front_whee
+    100020: inter
+    100022: interior
+    100024: interior_c
+    100026: interior_g
+    100028: interior_l
+    100030: interior_p
+    100032: interior_s
+    100034: interior_w
+    100036: main_body_1
+    100038: main_body_1_MeshPart0
+    100040: main_body_1_MeshPart1
+    100042: rear_wheel
+    100044: red_glass_
+    100046: steel
+    100048: steel_whee
+    100050: tire_
+    100052: tire_wheel
+    100054: white_inte
+    400000: body
+    400002: body_
+    400004: body_black
+    400006: body_chrom
+    400008: body_rubbe
+    400010: body_steel
+    400012: CINEMA_4D_Editor
+    400014: clear_glas
+    400016: //RootNode
+    400018: front_whee
+    400020: inter
+    400022: interior
+    400024: interior_c
+    400026: interior_g
+    400028: interior_l
+    400030: interior_p
+    400032: interior_s
+    400034: interior_w
+    400036: main_body_1
+    400038: main_body_1_MeshPart0
+    400040: main_body_1_MeshPart1
+    400042: rear_wheel
+    400044: red_glass_
+    400046: steel
+    400048: steel_whee
+    400050: tire_
+    400052: tire_wheel
+    400054: white_inte
+    2300000: body_
+    2300002: body_black
+    2300004: body_chrom
+    2300006: body_rubbe
+    2300008: body_steel
+    2300010: clear_glas
+    2300012: inter
+    2300014: interior_c
+    2300016: interior_g
+    2300018: interior_l
+    2300020: interior_p
+    2300022: interior_s
+    2300024: interior_w
+    2300026: main_body_1_MeshPart0
+    2300028: main_body_1_MeshPart1
+    2300030: red_glass_
+    2300032: steel
+    2300034: steel_whee
+    2300036: tire_
+    2300038: tire_wheel
+    2300040: white_inte
+    3300000: body_
+    3300002: body_black
+    3300004: body_chrom
+    3300006: body_rubbe
+    3300008: body_steel
+    3300010: clear_glas
+    3300012: inter
+    3300014: interior_c
+    3300016: interior_g
+    3300018: interior_l
+    3300020: interior_p
+    3300022: interior_s
+    3300024: interior_w
+    3300026: main_body_1_MeshPart0
+    3300028: main_body_1_MeshPart1
+    3300030: red_glass_
+    3300032: steel
+    3300034: steel_whee
+    3300036: tire_
+    3300038: tire_wheel
+    3300040: white_inte
+    4300000: interior_w
+    4300002: inter
+    4300004: interior_l
+    4300006: interior_s
+    4300008: interior_g
+    4300010: interior_p
+    4300012: interior_c
+    4300014: body_black
+    4300016: white_inte
+    4300018: red_glass_
+    4300020: body_steel
+    4300022: body_rubbe
+    4300024: clear_glas
+    4300026: main_body_1_MeshPart0
+    4300028: main_body_1_MeshPart1
+    4300030: body_
+    4300032: body_chrom
+    4300034: tire_wheel
+    4300036: steel_whee
+    4300038: tire_
+    4300040: steel
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
