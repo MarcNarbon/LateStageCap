@@ -16,8 +16,8 @@ public class movimientoPruebas : MonoBehaviour
     public int noControlDamage;//Daño recibido/dado cuando un coche colisiona con otro mientras tiene una rueda DETRUIDA y se mueve en alguna direccion
     public int dashDamage;//Daño que causa el DASH
     public bool playerDriving;//Si el jugador esta usando este vehiculo en particular o no
-    float speed = 1f, maxSpeed = 2f, minSpeed = 0.75f;//Velocidad base, velocidad maxima, velocidad minima
-    public float maxVertSpeed = 1, maxHorizSpeed = 1;
+    float speed = 1f, maxSpeed = 2f, minSpeed = 0.5f;//Velocidad base, velocidad maxima, velocidad minima
+    public float maxVertSpeed = 1, maxHorizSpeed = 1f;
 
     [HideInInspector] public float xSpeed = 0f;//Velocidad base horizontal
     [HideInInspector] public float ySpeed = 1;//velocidad base vertical
@@ -42,6 +42,7 @@ public class movimientoPruebas : MonoBehaviour
     public Transform jumpToLeft;//Posicion de donde sale el jugador cuando salta hacia la izquierda
     public Transform jumpToRight;//Posicion de donde sale el jugador cuando salta hacia la derecha
 
+    #region Easing funciones
     //funciones de easing para poder asignarlas y cambiarlas desde el inspector.
     public Easing .Ease easeAcelerar;
     public Easing .Ease easeFrenar;
@@ -59,17 +60,22 @@ public class movimientoPruebas : MonoBehaviour
     public Easing .Function fGiro;
     public Easing .Function fDash;
     public Easing .Function fCastDash;
+    #endregion
 
+    #region Counters
     //Contadores que se usan para las distintas mecanicas que usan easing
-    public int counterUp = 0;//Cuando estas acelerando hacia arriba
-    public int counterDown = 0;//Cuano estas acelerando hacia abajo (frenando)
-    public int counterLeft = 0;//Contador de movimiento horizontal hacia la izquierda
-    public int counterRight = 0;//Contador movimiento horizontal hacia la derecha
-    public int counterCast = 0;//Contador del casteo de el dash/salto 
+    float counterUp = 0;//Cuando estas acelerando hacia arriba
+    float counterDown = 0;//Cuano estas acelerando hacia abajo (frenando)
+    float counterLeft = 0;//Contador de movimiento horizontal hacia la izquierda
+    float counterRight = 0;//Contador movimiento horizontal hacia la derecha
+    public float counterCast = 0;//Contador del casteo de el dash/salto 
 
-    public int moveTimeX = 60;//Valor maximo de los contadores de control horizontal
-    public int moveTimeY = 60;//Valor maximo de los contadores de movimiento vertical
-    public int castTime = 40;//Valor maximo del contador del dash/saltp
+    float moveTimeX = 1f;//Valor maximo de los contadores de control horizontal
+    float moveTimeY = 1f;//Valor maximo de los contadores de movimiento vertical
+    float castTime = .75f;//Valor maximo del contador del dash/saltp
+    #endregion
+
+
 
     public int collisionForce;//Fuerza aplicada en la colision de vehiculos
     public float recovContrTime;//Tiempo para que el coche vuelva a recobrar el control despues de una colision
@@ -83,12 +89,12 @@ public class movimientoPruebas : MonoBehaviour
     [HideInInspector] public bool dashRight, dashLeft;//Controlar hacia que lado se esta haciendo el DASH
 
     [HideInInspector] public float dashDistance = 0;//Distancia del recorrido del dash al ser casteado, se calcula en funcion del tiempo de casteo
-     public float rbHorizSpeed, rbVerticalSpeed;//Velocidad del RIGIDBODY vertical y horizontal SE USA PARA EL DEBUG, NO TIENE FUNCIONALIDAD
+    public float rbHorizSpeed, rbVerticalSpeed;//Velocidad del RIGIDBODY vertical y horizontal SE USA PARA EL DEBUG, NO TIENE FUNCIONALIDAD
 
     public bool dashing = false;//Si el coche esta haciendo un DASH
     public bool casting = false;//Si el coche esta CASTEANDO 
-     public bool tireCollision = false;//Si el coche ya ha colisionado despues de haberse pinchado una rueda.
-     public bool tireSliding = false;//Si el coche esta moviendose a consecuencia de tener una rueda pinchada y no haber chocado todavia
+    public bool tireCollision = false;//Si el coche ya ha colisionado despues de haberse pinchado una rueda.
+    public bool tireSliding = false;//Si el coche esta moviendose a consecuencia de tener una rueda pinchada y no haber chocado todavia
 
     [HideInInspector] public Rigidbody2D rb;//El componente de fisicas 2D del coche
     public int speedRelativeValue;//Valor de velocidad relativo, se usa para hacer pruebas de escalado, simplemente incrementa la velocidad relativamente NO TIENE FUNCIONALIDAD a parte de para pruebas.
@@ -146,10 +152,10 @@ public class movimientoPruebas : MonoBehaviour
             shooter .SetActive(true);//Activa el sistema de disparo del coche
             //laneSpeed(true); //El coche del jugador no se vera influenciado por la velocidad del carril en el que esta.
 
-            //shakeScript = GameObject.Find("cameraTarget").GetComponent<screenShake>();//Busca el script encargado de el SCREEN SHAKE de la camera
+            if ( counterDown < 0 )
+                counterDown = 0;
 
             #region Player Inputs
-
             if ( Input .GetKeyDown(KeyCode .A) )
             {
                 if ( ( Time .time - lastTapTimeLeft ) < tapSpeed )//Control del DOUBLE TAP, mira si se esta haciendo tap(girar) o Doble tap(casteo de DASH)
@@ -159,13 +165,12 @@ public class movimientoPruebas : MonoBehaviour
                         doubleTappedLeft = true;
                         doubleTappedRight = false;
                     }
-
                 }
                 lastTapTimeLeft = Time .time;
             }
             if ( Input .GetKeyDown(KeyCode .D) )
             {
-                if ( ( Time .time - lastTapTimeRight ) < tapSpeed )
+                if ( ( Time .time - lastTapTimeRight ) < tapSpeed )//Control del DOUBLE TAP, mira si se esta haciendo tap(girar) o Doble tap(casteo de DASH)
                 {
                     if ( !accelerating && !braking )
                     {
@@ -175,148 +180,89 @@ public class movimientoPruebas : MonoBehaviour
                 }
                 lastTapTimeRight = Time .time;
             }
-
             if ( Input .GetKeyUp(KeyCode .A) )
             {
                 doubleTappedLeft = false;
                 counterLeft = 0;
             }
-
             if ( Input .GetKeyUp(KeyCode .D) )
             {
                 doubleTappedRight = false;
                 counterRight = 0;
             }
-
             #endregion
 
-            //Movimiento Vertical / Aceleracion
             #region Aceleracion Vertical
-
             if ( canAccelerate )
                 if ( Input .GetKey(KeyCode .W) && !Input .GetKey(KeyCode .S) )
                 {
-                    accelerating = true;//El coche esta acelerando
-
-                    //Acelerar desde velocidad normal
-                    if ( rbVerticalSpeed >= 0 )//Miramos si la velocidad del componente RIGIDBODY es mas grande o igual que 0, velocidad vertical
-                    {
-                        yAcc = fAcelerar(counterUp , 0f , 1f , moveTimeY);//Funcion de Easing para la acceleracion vertical yAcc
-                        if ( counterUp < moveTimeY )//Contador para cuantificar y transmitir el tiempo transcurrido acelerando
-                            counterUp++;
-                    }
-                    //Acelerar desde velocidad minima
-                    if ( rbVerticalSpeed < speed )
-                    {
-                        yAcc = -fAcelerar(counterDown , 0f , maxVertSpeed , moveTimeY);
-                        if ( counterDown > 0 )
-                            counterDown--;
-                    }
-
+                    AccelerateCar(moveTimeY);
                 }
-
             if ( Input .GetKeyUp(KeyCode .W) )//Al soltar la tecla dejamos de acelerar
             {
                 accelerating = false;
             }
-
             #endregion
 
-            //Frenar
             #region Frenar / Decelerar
-
             if ( Input .GetKey(KeyCode .S) && !Input .GetKey(KeyCode .W) )
             {
-                //Frenar desde velocidad normal
-                braking = true;
-                if ( rbVerticalSpeed > minSpeed && rbVerticalSpeed <= speed )
-                {
-                    yAcc = -fFrenar(counterDown , 0f , 0.5f , moveTimeY);
-                    if ( counterDown < moveTimeY )
-                        counterDown++;
-
-
-                }
-
-                //Frenar desde velocidad maxima
-
-                if ( rbVerticalSpeed > speed && rbVerticalSpeed <= maxSpeed )
-                {
-                    yAcc = fFrenar(counterUp , 0f , maxVertSpeed , moveTimeY);
-                    if ( counterUp > 0 )
-                        counterUp--;
-
-                }
-            }
-
-            //Si no se esta acelerando decelera el coche hasta vel normal (AUTOMATICAMENTE)
-
-            if ( rbVerticalSpeed > speed && !Input .GetKey(KeyCode .W) )
-            {
-                yAcc = fFrenarToNormal(counterUp , 0f , maxVertSpeed , moveTimeY);
-                if ( counterUp > 0 )
-                    counterUp--;
-
-            }
-
-            //Si no se esta frenando acelera al coche a velocidad normal (AUTOMATICAMENTE)
-
-            if ( rbVerticalSpeed < speed && !Input .GetKey(KeyCode .S) )
-            {
-                yAcc = -fAccelerarToNormal(counterDown , 0f , 0.5f , moveTimeY);
-                if ( counterDown > 0 )
-                    counterDown--;
-            }
-            if ( Input .GetKeyUp(KeyCode .S) )//Al soltar la tecla dejamos de acelerar
-            {
-                braking = false;
+                BrakeCar(moveTimeY);
             }
             #endregion
 
-            //Movimiento Horizontal
+            #region Movimiento sin Input
+            MovementCarNoInput(moveTimeY);
+            #endregion
 
-            #region Movimiento Horizontal VOLANTE 
-
-            //Movimiento Horizontal
             if ( canSideMove )//El jugador puede moverse horizontalmente?
             {
+                #region Movimiento Horizontal VOLANTE 
                 if ( !doubleTappedRight )
                 {
-
                     if ( Input .GetKey(KeyCode .D) )
                     {
-                        sideMoving = true;//El jugador se esta moviendo hacia un lado
-                        xAcc = fGiro(counterRight , 0f , horizontalSpeed , moveTimeX);
-
-                        if ( counterRight < moveTimeX )
-                            counterRight++;
-
-                        counterLeft = 0;//El contador de la acceleracion contraria se pone a 0 directamente
+                        HorizontalMovementCar(false , moveTimeX);
                     }
-
                 }
-
                 if ( !doubleTappedLeft )
                 {
                     if ( Input .GetKey(KeyCode .A) )
                     {
-                        sideMoving = true;
-
-                        xAcc = fGiro(counterLeft , 0f , -horizontalSpeed , moveTimeX);
-
-                        if ( counterLeft < moveTimeX )
-                            counterLeft++;
-
-                        counterRight = 0;
+                        HorizontalMovementCar(true , moveTimeX);
                     }
                 }
-
-
                 #endregion
 
-            //Dash
-            #region DASH 
+                #region Sidemoving y movimiento horizontal
 
+                if ( !Input .GetKey(KeyCode .A) && !Input .GetKey(KeyCode .D) )//Si el jugador no toca ninguna tecla de control del volante no se estara moviendo hacia los lados.
+                {
+                    if ( !casting )//Si el jugador no esta casteando el dash
+                    {
+                        if ( !playerTireSliding )
+                        {
+                            xAcc = 0;
+                            sideMoving = false;
+                        }
+                        else
+                        {
+                            //sideMoving = true;
+                            sideMoving = true;
+                        }
+                    }
+                }
+                if ( Input .GetKeyUp(KeyCode .A) || Input .GetKeyUp(KeyCode .D) )//Si alguna tecla de direccion esta pulsada el jugador se estara moviendo horizontalmente
+                {
+                    if ( !sideMoving )
+                    {
+                        rb .velocity = new Vector2(0 , rb .velocity .y);
+                        canSideMove = true;
+                    }
+                }
+                #endregion
+
+                #region DASH 
                 if ( !dashing ) //Si el jugador no esta haciendo un dash empieza a castear el dash
                 {
                     if ( doubleTappedRight )
@@ -334,59 +280,13 @@ public class movimientoPruebas : MonoBehaviour
                             dashLeft = true;
                         }
                 }
-
                 if ( casting )//Si se esta casteando
                 {
-                    sideMoving = true;//El jugador se esta moviendo con el volante horizontalmente
-                    yAcc = 0;
-                    counterUp = 0;
-                    if ( dashRight )//Si el jugador esta casteando un dash hacia la derecha
-                    {
-                        xAcc = -fCastDash(counterCast , 0 , 1 , castTime);//El jugador va en direccion opuesta a la de dash
-                        if ( counterCast < castTime )
-                            counterCast++;
-
-
-                    }
-                    else if ( dashLeft )
-                    {
-                        xAcc = +fCastDash(counterCast , 0 , 1 , castTime);//El jugador va en direccion opuesta a la de dash
-                        if ( counterCast < castTime )
-                            counterCast++;
-
-                    }
-
-                    if ( counterCast == castTime )//Si el tiempo de casteo llega a su maximo el jugador no hara dash y se quedara sin velocidad horizontal momentaneamente
-                    {
-                        xAcc = 0;
-                        casting = false;
-                        dashing = false;
-                        counterCast = 0;
-                        rb .velocity = new Vector2(0 , rb .velocity .y);
-                        dashLeft = false;
-                        dashRight = false;
-
-                    }
+                    DashCasting(castTime);
                 }
                 else if ( dashing )//Si no se esta casteando pero si haciendo un dash
                 {
-
-                    sideMoving = false;
-                    canSideMove = false;
-                    if ( dashRight )
-                    {
-                        rb .AddForce(new Vector2(150 , 0));//Aplicamos la fuerza de dash
-                        dashRight = false;
-                        dashing = true;
-                    }
-                    else if ( dashLeft )
-                    {
-                        rb .AddForce(new Vector2(-150 , 0));//Aplicamos la fuerza de dash
-                        dashLeft = false;
-                        dashing = true;
-                    }
-
-                    Invoke("recoverControll" , dashDistance * 2);//Llamamos a la funcion de recobrar el control del volante en el tiempo que hemos calculado mas arriba con el dashDistance y los counters.
+                    Dash();
                 }
                 //Dash
                 if ( ( Input .GetKeyUp(KeyCode .D) && dashRight ) || ( Input .GetKeyUp(KeyCode .A) && dashLeft ) )//Si uno es verdadero y el otro es falso 
@@ -399,7 +299,6 @@ public class movimientoPruebas : MonoBehaviour
                             dashing = true;//Ahora estara haciendo dash
                             dashDistance = ( ( 0.334f * counterCast ) / 100 );//Convertim el 30 de duracion a .1f i 60 a .2f ya que son las fuerzas calculadas optimas para la distancia deseada de dash
                             counterCast = 0;//Volvemos a poner el contador del casteo a 0 para la proxima vez
-
                         }
                         else//Si no se hace el casteo se cancela y el juagador pierde su velocidad horizontal momentaneamente como penalizacion 
                         {
@@ -408,45 +307,12 @@ public class movimientoPruebas : MonoBehaviour
                             xAcc = 0;//Aceleracion horizontal
                             rb .velocity = new Vector2(0 , rb .velocity .y);//La velocidad de el motor de fisicas del coche 
                             counterCast = 0;
-
                         }
                     }
                 }
+                #endregion
             }
 
-            #endregion
-
-            //Control del movimiento horizontal (ANALIZAR DATOS NO MODIFICARLOS)
-            #region Sidemoving y movimiento horizontal
-
-            if ( !Input .GetKey(KeyCode .A) && !Input .GetKey(KeyCode .D) )//Si el jugador no toca ninguna tecla de control del volante no se estara moviendo hacia los lados.
-            {
-                if ( !casting )//Si el jugador no esta casteando el dash
-                {
-                    if ( !playerTireSliding)
-                    { 
-                        xAcc = 0;
-                        sideMoving = false;
-                    }
-                    else
-                    {
-                        //sideMoving = true;
-                        sideMoving = true;
-                    }
-                }
-            }
-
-            if ( Input .GetKeyUp(KeyCode .A) || Input .GetKeyUp(KeyCode .D) )//Si alguna tecla de direccion esta pulsada el jugador se estara moviendo horizontalmente
-            {
-                if ( !sideMoving )
-                {
-                    rb .velocity = new Vector2(0 , rb .velocity .y);
-                    canSideMove = true;
-                }
-            }
-            #endregion
-
-            //Control del salto del jugador
             #region Jump to car
 
             if ( Input .GetKeyDown(KeyCode .Q) )
@@ -456,48 +322,10 @@ public class movimientoPruebas : MonoBehaviour
                 castJumpTimerRunning = true;
                 castJumpPressTime = Time .time;
             }
-
-            if ( castJumpTimerRunning )
-            {
-                castJumpTime = Time .time - castJumpPressTime;
-                GameObject .Find("positionFollowPlayerCamera0") .transform .position += ( new Vector3(0 , -0.02f , 0.030f) ) / 3;//Hace zoom a la camara.
-                cacamTargetOGPos -= ( new Vector3(0 , -0.02f , 0.030f) ) / 3;
-                print("camara zoon");
-
-                if ( castJumpTime > 1f )
-                {
-                    GameObject .Find("positionFollowPlayerCamera0") .transform .position = GameObject .Find("positionFollowPlayerCamera0") .transform .position + cacamTargetOGPos;
-                    cacamTargetOGPos = new Vector3(0 , 0 , 0);
-                    canAccelerate = true;
-                    canSideMove = true;
-                    castJumpTimerRunning = false;
-                }
-            }
-
             if ( Input .GetKeyUp(KeyCode .Q) )
             {
-                GameObject .Find("positionFollowPlayerCamera0") .transform .position = GameObject .Find("positionFollowPlayerCamera0") .transform .position + cacamTargetOGPos;
-                cacamTargetOGPos = new Vector3(0 , 0 , 0);
-                canAccelerate = true;
-                canSideMove = true;
-                castJumpTimerRunning = false;
-
-                if ( castJumpTime <= 1f && castJumpTime > 0.3f )
-                {
-                    GameObject jumper = Instantiate(playerJumPrefab , jumpToLeft .transform .position , Quaternion .identity);
-                    jumper .transform .parent = jumpToLeft;
-                    jumper .GetComponent<jumpPlayer>() .velocidadSalto = castJumpTime;
-                    castJumpTime = 0;
-                    castJumpTimerRunning = false;
-                    canAccelerate = true;
-                    canSideMove = true;
-
-                    playerDriving = false;
-
-                }
-                castJumpTime = 0;
+                JumpPlayer(true);
             }
-
             if ( Input .GetKeyDown(KeyCode .E) )
             {
                 canAccelerate = false;
@@ -505,28 +333,13 @@ public class movimientoPruebas : MonoBehaviour
                 castJumpTimerRunning = true;
                 castJumpPressTime = Time .time;
             }
-
-
             if ( Input .GetKeyUp(KeyCode .E) )
             {
-                GameObject .Find("positionFollowPlayerCamera0") .transform .position = GameObject .Find("positionFollowPlayerCamera0") .transform .position + cacamTargetOGPos;
-                cacamTargetOGPos = new Vector3(0 , 0 , 0);
-                canAccelerate = true;
-                canSideMove = true;
-                castJumpTimerRunning = false;
-
-                if ( castJumpTime <= 1f && castJumpTime > 0.3f )
-                {
-                    GameObject jumper = Instantiate(playerJumPrefab , jumpToRight .transform .position , Quaternion .identity);
-                    jumper .transform .parent = jumpToRight;
-                    jumper .GetComponent<jumpPlayer>() .velocidadSalto = castJumpTime;
-                    castJumpTime = 0;
-                    castJumpTimerRunning = false;
-                    canAccelerate = true;
-                    canSideMove = true;
-                    playerDriving = false;
-                }
-                castJumpTime = 0;
+                JumpPlayer(false);
+            }
+            if ( castJumpTimerRunning )
+            {
+                JumpCast();
             }
             #endregion
         }
@@ -536,6 +349,192 @@ public class movimientoPruebas : MonoBehaviour
             //gameObject.tag = "noControlando";//Se asigna el tag al coche que no esta siendo controlado por el jugador
             //shooter.SetActive(false);//Desactiva el arma del coche
             //laneSpeed(false);//La velocidad se ve influenciada por el carril en el que este situado el coche
+        }
+    }
+
+    private void JumpCast()
+    {
+        castJumpTime = Time .time - castJumpPressTime;
+        GameObject .Find("positionFollowPlayerCamera0") .transform .position += ( new Vector3(0 , -0.02f , 0.030f) ) / 3;//Hace zoom a la camara.
+        cacamTargetOGPos -= ( new Vector3(0 , -0.02f , 0.030f) ) / 3;
+        print("camara zoon");
+
+        if ( castJumpTime > 1f )
+        {
+            GameObject .Find("positionFollowPlayerCamera0") .transform .position = GameObject .Find("positionFollowPlayerCamera0") .transform .position + cacamTargetOGPos;
+            cacamTargetOGPos = new Vector3(0 , 0 , 0);
+            canAccelerate = true;
+            canSideMove = true;
+            castJumpTimerRunning = false;
+        }
+    }
+
+    private void JumpPlayer( bool isLeft )
+    {
+        GameObject .Find("positionFollowPlayerCamera0") .transform .position = GameObject .Find("positionFollowPlayerCamera0") .transform .position + cacamTargetOGPos;
+        cacamTargetOGPos = new Vector3(0 , 0 , 0);
+        canAccelerate = true;
+        canSideMove = true;
+        castJumpTimerRunning = false;
+
+        if ( castJumpTime <= 1f && castJumpTime > 0.3f )
+        {
+            if ( isLeft )
+            {
+                GameObject jumper = Instantiate(playerJumPrefab , jumpToLeft .transform .position , Quaternion .identity);
+                jumper .transform .parent = jumpToLeft;
+                jumper .GetComponent<jumpPlayer>() .velocidadSalto = castJumpTime;
+            }
+            else
+            {
+                GameObject jumper = Instantiate(playerJumPrefab , jumpToRight .transform .position , Quaternion .identity);
+                jumper .transform .parent = jumpToRight;
+                jumper .GetComponent<jumpPlayer>() .velocidadSalto = castJumpTime;
+            }
+            castJumpTime = 0;
+            castJumpTimerRunning = false;
+            canAccelerate = true;
+            canSideMove = true;
+            playerDriving = false;
+        }
+        castJumpTime = 0;
+    }
+
+    private void Dash()
+    {
+        sideMoving = false;
+        canSideMove = false;
+        if ( dashRight )
+        {
+            rb .AddForce(new Vector2(150 , 0));//Aplicamos la fuerza de dash
+            dashRight = false;
+            dashing = true;
+        }
+        else if ( dashLeft )
+        {
+            rb .AddForce(new Vector2(-150 , 0));//Aplicamos la fuerza de dash
+            dashLeft = false;
+            dashing = true;
+        }
+        Invoke("recoverControll" , dashDistance * 2);//Llamamos a la funcion de recobrar el control del volante en el tiempo que hemos calculado mas arriba con el dashDistance y los counters.
+    }
+
+    private void DashCasting( float time )
+    {
+        float rate = 1 / time;
+        sideMoving = true;//El jugador se esta moviendo con el volante horizontalmente
+        yAcc = 0;
+        counterUp = 0;
+        if ( dashRight )//Si el jugador esta casteando un dash hacia la derecha
+        {
+            xAcc = -fCastDash(counterCast , 0 , 1 , time);//El jugador va en direccion opuesta a la de dash
+            if ( counterCast < time )
+                counterCast += rate * Time .deltaTime;
+        }
+        else if ( dashLeft )
+        {
+            xAcc = +fCastDash(counterCast , 0 , 1 , time);//El jugador va en direccion opuesta a la de dash
+            if ( counterCast < time )
+                counterCast += rate * Time .deltaTime;
+        }
+        if ( counterCast == time )//Si el tiempo de casteo llega a su maximo el jugador no hara dash y se quedara sin velocidad horizontal momentaneamente
+        {
+            xAcc = 0;
+            casting = false;
+            dashing = false;
+            counterCast = 0;
+            rb .velocity = new Vector2(0 , rb .velocity .y);
+            dashLeft = false;
+            dashRight = false;
+        }
+    }
+
+    private void HorizontalMovementCar( bool goingLeft , float time )
+    {
+        float rate = 1 / time;
+
+        sideMoving = true;//El jugador se esta moviendo hacia un lado
+        if ( !goingLeft )
+            xAcc = fGiro(counterRight , 0f , horizontalSpeed , time);
+        else
+            xAcc = fGiro(counterLeft , 0f , -horizontalSpeed , time);
+
+        if ( !goingLeft )
+        {
+            if ( counterRight < time )
+                counterRight += rate * Time .deltaTime;
+            counterLeft = 0;//El contador de la acceleracion contraria se pone a 0 directamente
+        }
+        else
+        {
+            if ( counterLeft < time )
+                counterLeft += rate * Time .deltaTime;
+            counterRight = 0;
+        }
+    }
+
+    private void MovementCarNoInput( float time )
+    {
+        float rate = 1 / time;
+        //Si no se esta acelerando decelera el coche hasta vel normal (AUTOMATICAMENTE)
+        if ( rbVerticalSpeed > speed && !Input .GetKey(KeyCode .W) )
+        {
+            yAcc = fFrenarToNormal(counterUp , 0f , maxVertSpeed , time);
+            if ( counterUp > 0 )
+                counterUp -= rate * Time .deltaTime;
+        }
+        //Si no se esta frenando acelera al coche a velocidad normal (AUTOMATICAMENTE)
+        if ( rbVerticalSpeed < speed && !Input .GetKey(KeyCode .S) )
+        {
+            yAcc = -fAccelerarToNormal(counterDown , 0f , 0.5f , time);
+            if ( counterDown > 0 )
+                counterDown -= rate * Time .deltaTime;
+        }
+        if ( Input .GetKeyUp(KeyCode .S) )//Al soltar la tecla dejamos de acelerar
+        {
+            braking = false;
+        }
+
+
+    }
+
+    private void BrakeCar( float time )
+    {
+        float rate = 1 / time;
+        //Frenar desde velocidad normal
+        braking = true;
+        if ( rbVerticalSpeed > minSpeed && rbVerticalSpeed <= speed )
+        {
+            yAcc = -fFrenar(counterDown , 0f , 0.5f , time);
+            if ( counterDown < time )
+                counterDown += rate * Time .deltaTime;
+        }
+        //Frenar desde velocidad maxima
+        if ( rbVerticalSpeed > speed && rbVerticalSpeed <= maxSpeed )
+        {
+            yAcc = fFrenar(counterUp , 0f , maxVertSpeed , time);
+            if ( counterUp > 0 )
+                counterUp -= rate * Time .deltaTime;
+        }
+    }
+
+    private void AccelerateCar( float time )
+    {
+        float rate = 1 / time;
+        accelerating = true;//El coche esta acelerando
+        //Acelerar desde velocidad normal
+        if ( rbVerticalSpeed >= 0 )//Miramos si la velocidad del componente RIGIDBODY es mas grande o igual que 0, velocidad vertical
+        {
+            yAcc = fAcelerar(counterUp , 0f , 1f , time);//Funcion de Easing para la acceleracion vertical yAcc
+            if ( counterUp < moveTimeY )//Contador para cuantificar y transmitir el tiempo transcurrido acelerando
+                counterUp += rate * Time .deltaTime;
+        }
+        //Acelerar desde velocidad minima
+        if ( rbVerticalSpeed < speed )
+        {
+            yAcc = -fAcelerar(counterDown , 0f , maxVertSpeed , time);
+            if ( counterDown > 0 )
+                counterDown -= rate * Time .deltaTime;
         }
     }
 
@@ -650,22 +649,22 @@ public class movimientoPruebas : MonoBehaviour
 
                 if ( gameObject .tag == "controlando" )
                 {
-                  /*  if ( !FL )
-                    {
-                        tireHorizRelatSpeed = 0.1f;
-                        sideMoving = true;
-                        canSideMove = true;
-                        playerTireSliding = true;
-                    }
+                    /*  if ( !FL )
+                      {
+                          tireHorizRelatSpeed = 0.1f;
+                          sideMoving = true;
+                          canSideMove = true;
+                          playerTireSliding = true;
+                      }
 
-                    if ( !FR )
-                    {
-                        tireHorizRelatSpeed =-0.1f;
-                        sideMoving = true;
-                        playerTireSliding = true;
-                        canSideMove = true;
+                      if ( !FR )
+                      {
+                          tireHorizRelatSpeed =-0.1f;
+                          sideMoving = true;
+                          playerTireSliding = true;
+                          canSideMove = true;
 
-                    }*/
+                      }*/
                 }
 
             }
@@ -697,7 +696,7 @@ public class movimientoPruebas : MonoBehaviour
 
                 if ( !FL && !FR )
                 {
-                   // carHealth .carDestroy();
+                    // carHealth .carDestroy();
                 }
             }
         }
@@ -773,12 +772,12 @@ public class movimientoPruebas : MonoBehaviour
         if ( other .gameObject .layer == 10 )
         {
 
-            audioSource .PlayOneShot(audioFX [(UnityEngine.Random.Range(5,7))] , 1f);
+            audioSource .PlayOneShot(audioFX [( UnityEngine .Random .Range(5 , 7) )] , 1f);
 
 
             npcBehaviourScript .changeLane();
             Vector3 contactPoint = other .contacts [0] .point;
-            
+
             GameObject hitSprite = Instantiate(sparkPrefab , new Vector3(contactPoint .x , contactPoint .y , -0.036f) , transform .rotation);
             Destroy(hitSprite , 0.3f);
             Vector3 center = other .collider .bounds .center;
@@ -879,8 +878,8 @@ public class movimientoPruebas : MonoBehaviour
                     if ( tiresDamaged )
                         other .gameObject .GetComponent<carHealth>() .receiveDamage(noControlDamage);
                     else
-                        other .gameObject .GetComponent<carHealth>() .receiveDamage(noControlDamage/3);
-                    
+                        other .gameObject .GetComponent<carHealth>() .receiveDamage(noControlDamage / 3);
+
 
                     rb .velocity = new Vector2(0 , rb .velocity .y);
                     Invoke("recoverControll" , recovContrTime);
