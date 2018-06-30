@@ -9,8 +9,6 @@ public class movimientoPruebas : MonoBehaviour
     public List<AudioClip> audioFX;
     public AudioSource audioSource;
 
-
-
     [HideInInspector] public float baseSpeed = 1;//Velocidad base
 
     public int noControlDamage;//Daño recibido/dado cuando un coche colisiona con otro mientras tiene una rueda DETRUIDA y se mueve en alguna direccion
@@ -28,7 +26,6 @@ public class movimientoPruebas : MonoBehaviour
     public Vector2 carSlotLocation;//Posicion de este coche en los slots
 
     GridCreator grid;
-
 
     public GameObject sparkPrefab;//Prefab de los efectos de chispas
     public GameObject shooter;//El motor de disparo del juego, el arma 
@@ -75,8 +72,6 @@ public class movimientoPruebas : MonoBehaviour
     float castTime = .75f;//Valor maximo del contador del dash/saltp
     #endregion
 
-
-
     public int collisionForce;//Fuerza aplicada en la colision de vehiculos
     public float recovContrTime;//Tiempo para que el coche vuelva a recobrar el control despues de una colision
 
@@ -115,11 +110,20 @@ public class movimientoPruebas : MonoBehaviour
     public GameObject lootOnAir;
     public float tireRelativeSpeed = 0;
 
+
+    //[SerializeField] public CarSettings carSettings;
+    private ICarInputs carInputs;
+
+
+
     private void Start()
     {
         Application .targetFrameRate = 60;//Limita los FPS del juego
         QualitySettings .vSyncCount = 0;//Quita la sincronizacion vertical
 
+        //carInputs = carSettings .UseAi ? new AiInputs() as ICarInputs : new PlayerInputs();
+        //playerDriving = carSettings .UseAi;
+        carInputs = new PlayerInputs();
         rb = GetComponent<Rigidbody2D>();//Asigna y obtiene el componente rigidbody del coche
         grid = GameObject .Find("gridCreator") .GetComponent<GridCreator>();
         npcBehaviourScript = GetComponent<npcBehaviour>();
@@ -146,6 +150,9 @@ public class movimientoPruebas : MonoBehaviour
         if ( npcBehaviourScript == null )
             npcBehaviourScript = GetComponent<npcBehaviour>();
 
+        carInputs .ReadInputs();
+
+
         if ( playerDriving )//Si el jugador esta controlando el coche
         {
             gameObject .tag = "controlando";//Se asigna al coche que controla el jugador un tag para reconocerlo
@@ -156,6 +163,7 @@ public class movimientoPruebas : MonoBehaviour
                 counterDown = 0;
 
             #region Player Inputs
+            /*
             if ( Input .GetKeyDown(KeyCode .A) )
             {
                 if ( ( Time .time - lastTapTimeLeft ) < tapSpeed )//Control del DOUBLE TAP, mira si se esta haciendo tap(girar) o Doble tap(casteo de DASH)
@@ -189,45 +197,44 @@ public class movimientoPruebas : MonoBehaviour
             {
                 doubleTappedRight = false;
                 counterRight = 0;
-            }
+            }*/
             #endregion
 
             #region Aceleracion Vertical
             if ( canAccelerate )
-                if ( Input .GetKey(KeyCode .W) && !Input .GetKey(KeyCode .S) )
+                if ( carInputs .UP )
                 {
                     AccelerateCar(moveTimeY);
                 }
-            if ( Input .GetKeyUp(KeyCode .W) )//Al soltar la tecla dejamos de acelerar
-            {
-                accelerating = false;
-            }
+                else
+                    accelerating = false;
+
             #endregion
 
             #region Frenar / Decelerar
-            if ( Input .GetKey(KeyCode .S) && !Input .GetKey(KeyCode .W) )
+            if ( carInputs .DOWN )
             {
                 BrakeCar(moveTimeY);
             }
+
             #endregion
 
-            #region Movimiento sin Input
             MovementCarNoInput(moveTimeY);
-            #endregion
+
 
             if ( canSideMove )//El jugador puede moverse horizontalmente?
             {
                 #region Movimiento Horizontal VOLANTE 
-                if ( !doubleTappedRight )
+                if ( !carInputs.DoubleTapRIGHT )
                 {
-                    if ( Input .GetKey(KeyCode .D) )
+                    if ( carInputs.RIGHT)
                     {
                         HorizontalMovementCar(false , moveTimeX);
                     }
                 }
-                if ( !doubleTappedLeft )
+                if ( !carInputs.DoubleTapLEFT )
                 {
-                    if ( Input .GetKey(KeyCode .A) )
+                    if ( carInputs.LEFT )
                     {
                         HorizontalMovementCar(true , moveTimeX);
                     }
@@ -265,15 +272,15 @@ public class movimientoPruebas : MonoBehaviour
                 #region DASH 
                 if ( !dashing ) //Si el jugador no esta haciendo un dash empieza a castear el dash
                 {
-                    if ( doubleTappedRight )
-                        if ( Input .GetKeyDown(KeyCode .D) )
+                    if ( carInputs.DoubleTapRIGHT )
+                        if ( carInputs.RIGHT )
                         {
                             casting = true;
                             dashRight = true;
                             dashLeft = false;
                         }
-                    if ( doubleTappedLeft )
-                        if ( Input .GetKeyDown(KeyCode .A) )
+                    if ( carInputs .DoubleTapLEFT )
+                        if ( carInputs.LEFT )
                         {
                             casting = true;
                             dashRight = false;
@@ -289,7 +296,7 @@ public class movimientoPruebas : MonoBehaviour
                     Dash();
                 }
                 //Dash
-                if ( ( Input .GetKeyUp(KeyCode .D) && dashRight ) || ( Input .GetKeyUp(KeyCode .A) && dashLeft ) )//Si uno es verdadero y el otro es falso 
+                if ( ( !carInputs .DoubleTapRIGHT && dashRight ) || ( !carInputs .DoubleTapLEFT && dashLeft ) )//Si uno es verdadero y el otro es falso 
                 {
                     if ( casting )//Si se estaba casteando la habilidad:
                     {
@@ -322,7 +329,7 @@ public class movimientoPruebas : MonoBehaviour
                 castJumpTimerRunning = true;
                 castJumpPressTime = Time .time;
             }
-            if ( Input .GetKeyUp(KeyCode .Q) )
+            if (carInputs.JumpLEFT )
             {
                 JumpPlayer(true);
             }
@@ -333,7 +340,7 @@ public class movimientoPruebas : MonoBehaviour
                 castJumpTimerRunning = true;
                 castJumpPressTime = Time .time;
             }
-            if ( Input .GetKeyUp(KeyCode .E) )
+            if ( carInputs .JumpRIGHT )
             {
                 JumpPlayer(false);
             }
