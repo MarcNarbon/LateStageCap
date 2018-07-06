@@ -18,7 +18,8 @@ public class TileInfo
         zone = (ZONE)z;
         tile = t;
         rType = t.GetComponent<RoadData>().roadType;
-        dimensions = t.GetComponent<BoxCollider2D>().size * t.transform.localScale;
+        dimensions.x = t.GetComponent<BoxCollider2D>().size.x * t.transform.localScale.x;
+        dimensions.y = t.GetComponent<BoxCollider2D>().size.y * t.transform.localScale.z;
     }
 }
 
@@ -36,6 +37,7 @@ public class RoadManager : MonoBehaviour {
     [Space(10)]
     [SerializeField]
     private int currentZone = 0;
+    public int chunkSize = 1;
 
 	// Use this for initialization
 	void Start () {
@@ -56,16 +58,7 @@ public class RoadManager : MonoBehaviour {
             }
         }
 
-        foreach (TileInfo x in tilesList)
-        {
-            if(x.zone == (ZONE)currentZone)
-            {
-                GameObject holder = Instantiate(x.tile, transform);
-                Vector2 position = SpawnPosition(x);
-                holder.transform.position = new Vector3(position.x, position.y, 0f);
-            }
-        }
-
+        SpawnChunk();
 	}
 	
 	// Update is called once per frame
@@ -73,7 +66,7 @@ public class RoadManager : MonoBehaviour {
 		
 	}
 
-    Vector2 SpawnPosition(TileInfo tileInfo)
+    Vector2 SpawnPosition(TileInfo tileInfo, int cSize)
     {
         Vector2 position = new Vector2();
 
@@ -104,6 +97,24 @@ public class RoadManager : MonoBehaviour {
                 break;
         }
 
+        position.y += tileInfo.dimensions.y * cSize;
+
         return position;
+    }
+
+    void SpawnChunk()
+    {
+        for(int i = 0; i < chunkSize; i++)
+        {
+            foreach (TileInfo x in tilesList)
+            {
+                if (x.zone == (ZONE)currentZone)
+                {
+                    GameObject holder = Instantiate(x.tile, transform);
+                    Vector2 position = SpawnPosition(x, i);
+                    holder.transform.position = new Vector3(position.x, position.y, 0f);
+                }
+            }
+        }        
     }
 }
